@@ -1,6 +1,7 @@
 from flask import Flask, render_template, url_for, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import mysql.connector
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
@@ -61,6 +62,26 @@ def update(id):
             return 'There was an issue updating your task'
     else:
         return render_template('update.html', task=task)
+
+
+@app.route("/db_trial", methods=['GET'])
+def db_trial():
+    my_db = mysql.connector.connect(
+        host='Fleiv.mysql.pythonanywhere-services.com',
+        user='pippo',
+        passwd='Apprendere19',
+    )
+    db_cursor = my_db.cursor(buffered=True)
+    db_cursor.execute("CREATE DATABASE PrimaProva")
+    query1 = "CREATE TABLE MyGuests (id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,firstname VARCHAR(30) NOT NULL," \
+            "lastname VARCHAR(30) NOT NULL,email VARCHAR(50),reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP " \
+            "ON UPDATE CURRENT_TIMESTAMP)";
+    db_cursor.execute(query1)
+    query2 = "INSERT INTO MyGuests (firstname, lastname, email)" \
+          "VALUES('John', 'Doe', 'john@example.com')";
+    db_cursor.execute(query2)
+    my_db.commit()
+    return render_template('create_db.html')
 
 
 if __name__ == "__main__":
